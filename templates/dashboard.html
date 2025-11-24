@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="tr">
+    <head>
+      <meta charset="UTF-8">
+      <title>Spotify Stats Dashboard</title>
+      <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+    <body class="dashboard-body">
+        <header>
+            <div class="logo-header">
+                <img src="{{ url_for('static', filename='uploads/spotify-logo.png') }}" alt="logo" width="50" height="50">
+                <h1>Spotify Stats Dashboard</h1>
+            </div>
+            <div class="profile-header">
+                <img src="{{ user_profile['images'][0]['url'] }}" alt="Profile Picture" width="50" height="50">
+                <h1><a href="{{ user_profile['external_urls']['spotify'] }}" target="_blank">{{ user_profile['display_name'] }}</a></h1>
+            </div>
+        </header>
+        <main>
+                <section class="recently-played">
+                    <h2>RECENTLY PLAYED</h2>
+                    <ul>
+                        {% for item in recently_played['items'] %}
+                            <li><a href="{{ item['track']['external_urls']['spotify'] }}" target="_blank">
+                                {{ item['track']['name'] }} - {{ item['track']['artists'][0]['name'] }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </section>
+                <section class="top-tracks-artists">
+                    <div class="time-range-buttons">
+                        <form method="post" action="{{ url_for('set_time_range')}}">
+                            <button type="submit" name="time_range" value="short_term">Short Term</button>
+                            <button type="submit" name="time_range" value="medium_term">Medium Term</button>
+                            <button type="submit" name="time_range" value="long_term">Long Term</button>
+                        </form>
+                    </div>
+                    <div class="top-tracks">
+                        <h2>Top Tracks</h2>
+                        <ol>
+                            {% for track in top_tracks['items'] %}
+                                <li>
+                                    <div class="track-item">
+                                        <img src="{{ track['album']['images'][2]['url'] }}" alt="Album Art" width="50" height="50">
+                                        <div class ="track-info">
+                                            <span class="track-name"><a href="{{ track['external_urls']['spotify'] }}" target="_blank">{{ track['name'] }}</a></span>
+                                            <span class="artist-name"><a href="{{ track['artists'][0]['external_urls']['spotify'] }}" target="_blank">{{ track['artists'][0]['name'] }}</a></span>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                    <div class="top-artists">
+                        <h2>Top Artists</h2>
+                        <ol>
+                            {% for artist in top_artists['items'] %}
+                                <li>
+                                    <div class="artist-item">
+                                        <img src="{{ artist['images'][2]['url'] }}" alt="Artist Image" width="50" height="50">
+                                        <span><a href="{{ artist['external_urls']['spotify'] }}" target="_blank">{{ artist['name'] }}</a></span>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                </section>
+        </main>
+    </body>
+</html>
