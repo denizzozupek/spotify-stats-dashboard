@@ -9,6 +9,12 @@ This project is a Flask web application that allows you to log in with your Spot
   - **Recently Played**: A list of your recently played tracks.
   - **Top Items**: Your most listened-to songs and artists over specific time ranges (short, medium, and long term).
 
+
+## Screenshots
+
+<img width="1895" height="907" alt="image" src="https://github.com/user-attachments/assets/6a755968-4449-49f7-bf71-76f35af84636" />
+
+
 ## Requirements
 
 To run this project, you must have Python installed on your computer. Additionally, you need the following libraries:
