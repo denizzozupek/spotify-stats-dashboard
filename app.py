@@ -1,5 +1,7 @@
 import os
-from flask import Flask, redirect, request, session, url_for, render_template
+from flask import Flask, redirect, request, session, url_for, render_template, Response
+from werkzeug.wrappers import Response as WerkzeugResponse
+from typing import Union, Dict, Any
 import requests
 import json
 from urllib.parse import quote
@@ -17,6 +19,8 @@ from api import (
     auth_query_parameters
 )
 
+RouteResponse = Union[Response, WerkzeugResponse, str]
+
 # Use this guide for reference: https://developer.spotify.com/web-api/authorization-guide/
 
 app = Flask(__name__)
@@ -24,17 +28,17 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY', 'random_secret_key')
 
 # -- User route authentication --
 @app.route("/")
-def index():
-    url_args = "&".join(["{}={}".format(key, quote(val)) for key, val in auth_query_parameters.items()])
-    auth_url = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
+def index() -> RouteResponse:
+    url_args: str = "&".join(["{}={}".format(key, quote(val)) for key, val in auth_query_parameters.items()])
+    auth_url: str = "{}/?{}".format(SPOTIFY_AUTH_URL, url_args)
     return redirect(auth_url)
 
 # -- Authorization code -> Access token --
 @app.route("/callback/q")
-def callback():
+def callback() -> RouteResponse:
     auth_token = request.args['code']
 
-    token_data = {
+    token_data: Dict[str, str | int] = {
         "grant_type": "authorization_code",
         "code": str(auth_token),
         "redirect_uri": REDIRECT_URI,
@@ -43,9 +47,12 @@ def callback():
     }
 
     post_request = requests.post(SPOTIFY_TOKEN_URL, data=token_data)
-    response_data = json.loads(post_request.text)
+    response_data: Dict[str, Any] = json.loads(post_request.text)
 
-    access_token = response_data["access_token"]
+    if "access_token" not in response_data:
+        return "Error retrieving access token", 400
+
+    access_token: str = response_data["access_token"]
 
     # -- Token exchange --
 
@@ -59,12 +66,13 @@ def callback():
     return redirect(url_for('dashboard'))
 
 @app.route("/dashboard")
-def dashboard():
-    access_token = session.get("access_token")
+def dashboard() -> RouteResponse:
+    access_token: str | None = session.get("access_token")
+
     if not access_token:
         return redirect(url_for("index"))
     
-    time_range = session.get("time_range", "medium_term")
+    time_range: str = session.get("time_range", "medium_term")
 
     user_profile = get_user_profile(access_token)
     recently_played = get_recently_played(access_token)
@@ -80,8 +88,8 @@ def dashboard():
     )
 
 @app.route("/set_time_range", methods=["POST"])
-def set_time_range():
-    selected_range = request.form.get("time_range", "medium_term")
+def set_time_range() -> RouteResponse:
+    selected_range: str = request.form.get("time_range", "medium_term")
     session["time_range"] = selected_range
     return redirect(url_for("dashboard"))
 

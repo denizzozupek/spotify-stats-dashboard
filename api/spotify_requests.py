@@ -4,7 +4,7 @@ import requests
 import json
 from urllib.parse import quote
 from dotenv import load_dotenv
-
+from typing import TypedDict, List, Optional, Any
 # Use this guide for reference: https://developer.spotify.com/web-api/authorization-guide/
 
 # --Spotify URLs--
@@ -37,13 +37,13 @@ auth_query_parameters = {
 
 # --- REQUEST DATA FROM SPOTIFY ---
 
-def get_user_profile(access_token):
+def get_user_profile(access_token: str) -> dict:
     url = f"{SPOTIFY_API_URL}/me"
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get(url, headers=headers)
     return response.json()
 
-def get_recently_played(access_token, limit=50):
+def get_recently_played(access_token: str, limit: int = 50) -> dict:
     url = f"{SPOTIFY_API_URL}/me/player/recently-played"
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get(url, headers=headers, params={'limit': limit})
@@ -51,13 +51,13 @@ def get_recently_played(access_token, limit=50):
 
 time_range = "medium_term"
 
-def get_user_top_tracks(access_token, time_range=time_range, limit=5):
+def get_user_top_tracks(access_token: str, time_range: str = time_range, limit: int = 5) -> dict:
     url = f"{SPOTIFY_API_URL}/me/top/tracks"
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get(url, headers=headers, params={'time_range': time_range, 'limit': limit})
     return response.json()
 
-def get_user_top_artists(access_token, time_range=time_range, limit=5):
+def get_user_top_artists(access_token: str, time_range: str = time_range, limit: int = 5) -> dict:
     url = f"{SPOTIFY_API_URL}/me/top/artists"
     headers = {"Authorization": f"Bearer {access_token}"}
     response = requests.get(url, headers=headers, params={'time_range': time_range, 'limit': limit})
